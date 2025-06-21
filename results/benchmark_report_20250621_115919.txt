@@ -1,0 +1,32 @@
+================================================================================
+DEEP LEARNING MODEL PERFORMANCE BENCHMARK REPORT
+================================================================================
+Generated on: 2025-06-21 11:59:19
+Dataset: CIFAR10
+Number of epochs: 10
+Batch size: 128
+
+SYSTEM INFORMATION:
+----------------------------------------
+PyTorch version: 2.7.1
+MPS Available: 1
+MPS Memory: 5.3 GB
+
+PERFORMANCE COMPARISON:
+----------------------------------------
+
+CPU Results:
+  Total training time: 451.02 seconds
+  Average epoch time: 45.10 seconds
+  Final training accuracy: 76.42%
+  Test accuracy: 76.76%
+
+MPS Results:
+  Total training time: 198.76 seconds
+  Average epoch time: 19.88 seconds
+  Final training accuracy: 76.47%
+  Test accuracy: 76.54%
+
+SPEEDUP ANALYSIS:
+  MPS is 2.27x faster than CPU
+  Time saved: 252.26 seconds (55.9%)

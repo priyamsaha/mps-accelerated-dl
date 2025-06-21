@@ -1,0 +1,200 @@
+# GPU-Accelerated Deep Learning Training Setup Guide
+
+## Requirements.txt
+```
+torch>=2.0.0
+torchvision>=0.15.0
+matplotlib>=3.5.0
+numpy>=1.21.0
+tqdm>=4.64.0
+seaborn>=0.11.0
+pandas>=1.5.0
+```
+
+## Environment Setup Instructions
+
+### 1. Python Environment Setup
+```bash
+# Create virtual environment
+python -m venv dl_benchmark_env
+
+# Activate environment (Windows)
+dl_benchmark_env\Scripts\activate
+
+# Activate environment (Linux/Mac)
+source dl_benchmark_env/bin/activate
+
+# Install requirements
+pip install -r requirements.txt
+```
+
+### 2. CUDA Setup (for GPU support)
+1. Check if CUDA is available:
+```python
+import torch
+print(f"CUDA available: {torch.cuda.is_available()}")
+print(f"CUDA version: {torch.version.cuda}")
+```
+
+2. Install CUDA/MPS-compatible PyTorch (if needed):
+```bash
+# For CUDA 11.8
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+# For CUDA 12.1
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+```
+# For MPS (Apple Silicon)
+```bash
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/mps
+
+
+
+### 3. Verify Installation
+Run the following test script:
+```python
+import torch
+import torchvision
+
+print("PyTorch version:", torch.__version__)
+print("Torchvision version:", torchvision.__version__)
+print("CUDA available:", torch.cuda.is_available())
+
+if torch.cuda.is_available():
+    print("GPU device:", torch.cuda.get_device_name(0))
+    print("GPU memory:", torch.cuda.get_device_properties(0).total_memory / 1024**3, "GB")
+```
+
+## Project Structure
+```
+gpu-dl-benchmark/
+├── main.py                    # Main benchmark script
+├── requirements.txt           # Python dependencies
+├── README.md                 # This file
+├── data/                     # Dataset storage (auto-created)
+├── results/                  # Benchmark results (auto-created)
+│   ├── benchmark_report_*.txt
+│   ├── benchmark_results_*.json
+│   └── benchmark_plots_*.png
+└── models/                   # Saved models (optional)
+```
+
+## Usage Examples
+
+### Basic Usage
+```python
+from main import DeepLearningBenchmark
+
+# Create benchmark with default settings
+benchmark = DeepLearningBenchmark()
+results = benchmark.run_benchmark()
+```
+
+### Custom Configuration
+```python
+# Custom configuration
+benchmark = DeepLearningBenchmark(
+    dataset='cifar10',
+    batch_size=256,
+    num_epochs=20
+)
+results = benchmark.run_benchmark()
+```
+
+### Advanced Usage
+```python
+# For research purposes with detailed logging
+benchmark = DeepLearningBenchmark(
+    dataset='cifar10',
+    batch_size=128,
+    num_epochs=50
+)
+
+# Run benchmark
+results = benchmark.run_benchmark()
+
+# Access specific results
+cpu_time = results['CPU']['total_training_time']
+gpu_time = results['GPU']['total_training_time']
+speedup = cpu_time / gpu_time
+
+print(f"GPU speedup: {speedup:.2f}x")
+```
+
+## Configuration Options
+
+### Dataset Options
+- `'cifar10'`: CIFAR-10 image classification (32x32 RGB images, 10 classes)
+- `'mnist'`: MNIST handwritten digits (28x28 grayscale, 10 classes)
+
+### Batch Size Recommendations
+- CPU: 32-128 (depending on RAM)
+- GPU: 128-512 (depending on GPU memory)
+
+### Training Parameters
+- Learning rate: 0.001 (Adam optimizer)
+- Weight decay: 1e-4
+- Scheduler: StepLR (step_size=5, gamma=0.1)
+- Dropout: 0.5
+
+## Expected Output Files
+
+1. **Text Report**: `benchmark_report_YYYYMMDD_HHMMSS.txt`
+   - System information
+   - Training metrics
+   - Performance comparison
+   - Speedup analysis
+
+2. **JSON Results**: `benchmark_results_YYYYMMDD_HHMMSS.json`
+   - Raw benchmark data
+   - Training histories
+   - Timing information
+
+3. **Plots**: `benchmark_plots_YYYYMMDD_HHMMSS.png`
+   - Training time comparison
+   - Epoch time progression
+   - Loss and accuracy curves
+
+## Troubleshooting
+
+### Common Issues
+
+1. **CUDA out of memory**
+   - Reduce batch_size
+   - Use smaller model
+   - Clear GPU cache: `torch.cuda.empty_cache()`
+
+2. **Slow CPU training**
+   - Reduce batch_size for CPU
+   - Use fewer epochs for initial testing
+   - Consider using DataLoader with num_workers=0
+
+3. **Dataset download issues**
+   - Ensure internet connection
+   - Check firewall settings
+   - Manual download may be required
+
+### Performance Tips
+
+1. **For GPU training**:
+   - Use larger batch sizes (128-512)
+   - Enable mixed precision training
+   - Use DataLoader with multiple workers
+
+2. **For CPU training**:
+   - Use smaller batch sizes (32-64)
+   - Set num_workers=0 in DataLoader
+   - Consider using Intel MKL optimization
+
+## Hardware Recommendations
+
+### Minimum Requirements
+- CPU: 4 cores, 8GB RAM
+- GPU: 4GB VRAM (for basic benchmarking)
+- Storage: 2GB free space
+
+### Recommended for Research
+- CPU: 8+ cores, 16GB+ RAM
+- GPU: 8GB+ VRAM (RTX 3070 or better)
+- Storage: 10GB+ free space
+- SSD storage for faster data loading
